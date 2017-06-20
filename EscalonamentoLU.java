@@ -20,10 +20,12 @@ public class EscalonamentoLU {
         nome = Nomearq.nextLine();
         Scanner ler = new Scanner(System.in);
         int cont = 0;
-        int indiceLinha = 0,indiceColuna =0;
-        int tamMatriz = 0;
+        int indiceLinha = 0,indiceColuna = 0;
+        int numLinhas = 0;
+        int numColunas = 0;
         double [][]MatrizA = null;
-        double []vetorB =null;
+        double []vetorB = null;
+        double []vetorC = null;
         try{
         FileReader arq = new FileReader(nome);
         BufferedReader lerArq = new BufferedReader(arq);
@@ -31,10 +33,13 @@ public class EscalonamentoLU {
         String linha = lerArq.readLine();
         while(linha != null){
             if(cont == 0){ // Primeira linha do arquivo
-                tamMatriz = Integer.parseInt(linha);
-                MatrizA = new double[tamMatriz][tamMatriz];
-                vetorB = new double[tamMatriz];
-            }else if(cont<= tamMatriz && cont >0){ // Demais linhas até ultima;
+                String c[] = linha.split(",");
+                numLinhas = Integer.parseInt(c[0]);
+                numColunas = Integer.parseInt(c[1]);
+                MatrizA = new double[numLinhas][numColunas];
+                vetorB = new double[numLinhas];
+                vetorC = new double[numColunas];
+            }else if(cont <= numLinhas && cont >0){ // Demais linhas até ultima;
                 String x[] = linha.split(" ");
                 indiceColuna = 0;
                 for(int i =0;i<x.length;i++){
@@ -44,13 +49,23 @@ public class EscalonamentoLU {
                     }
                 }
                 indiceLinha++;
-            }else{ //Ultima linha;
+            }else if(cont == numLinhas+1){
                 String x[] = linha.split(" ");
-                indiceColuna =0;
-                indiceLinha = tamMatriz -1;
+                indiceColuna = 0;
+                indiceLinha = numLinhas -1;
                 for(int i =0;i<x.length;i++){
                     if(!x[i].equals("")){
                         vetorB[indiceColuna] = Double.parseDouble(x[i]);
+                        indiceColuna++;
+                    }
+                }
+            }else{ //Ultima linha;
+                String x[] = linha.split(" ");
+                indiceColuna = 0;
+                indiceLinha = numLinhas -1;
+                for(int i =0;i<x.length;i++){
+                    if(!x[i].equals("")){
+                        vetorC[indiceColuna] = Double.parseDouble(x[i]);
                         indiceColuna++;
                     }
                 }
@@ -59,35 +74,13 @@ public class EscalonamentoLU {
             cont++;
             
         }
-         System.out.println("Tamanho da Matriz: "+tamMatriz);
+         System.out.println("Tamanho da Matriz: "+numLinhas);
         }catch(IOException e){
             System.err.printf("Erro na abertura do arquivo: %s. \n",e.getMessage());
         }
-        System.out.println("A matriz A");
-       for(int i =0;i<MatrizA.length;i++){
-           for(int j =0;j<MatrizA.length;j++){
-               System.out.print(MatrizA[i][j]+ " ");
-           }
-           System.out.println(" ");
-       }
-       System.out.println(" ");
-       System.out.println("O vetor B");
-       for(int i =0;i<vetorB.length;i++){
-               System.out.print(vetorB[i]+ " \n");
-       }
         
-        Escalona lu = new Escalona(MatrizA,vetorB);
-        lu.escalona();
-        lu.resolveLyb();
-        lu.resolveUxy();
-        
-        
-        EscalonaTransposta lut = new EscalonaTransposta(MatrizA,vetorB);
-        lut.escalona();
-        lut.matrizTransposta();
-        lut.transporP();
-        lut.resolveUty();
-        lut.resolveLtx();
+        Simplex s = new Simplex(MatrizA, vetorB, vetorC, numLinhas, numColunas);
+        //s.resolveSistemaLinear();
     }
     
 }

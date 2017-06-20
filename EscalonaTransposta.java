@@ -108,8 +108,8 @@ package escalonamentolu;
     */
     public void matrizTransposta(){
        at = new double[mat.length][mat.length];
-       System.out.println();
-       System.out.println("matriz transposta LU");
+       //System.out.println();
+       //System.out.println("matriz transposta LU");
 	for (int i = 0; i < mat.length; i++) {
             for (int j = 0; j < mat.length; j++) {
                 at[j][i] = mat[i][j];
@@ -117,9 +117,9 @@ package escalonamentolu;
         }
         for(int i = 0; i < at.length; i++){
             for(int j = 0; j < at.length; j++){
-                System.out.print(at[i][j] + "     ");
+                //System.out.print(at[i][j] + "     ");
             }
-            System.out.println();
+            //System.out.println();
         }
     }
     
@@ -150,7 +150,7 @@ package escalonamentolu;
     /*
        Resolva Ltx = y pelo metodo de substituiçao progreciva
     */
-    public void resolveLtx(){
+    public double[] resolveLtx(){
        for(int i = 0; i < at.length; i++){
             for(int j = 0; j < at.length; j++){
                 if(i == j){
@@ -169,10 +169,11 @@ package escalonamentolu;
             }
             x[k] = x[k]/1.0;
         }
-        System.out.println();
-        System.out.println("vetor lambiada");// Imprime o vetro resposta lambida
+        //System.out.println();
+        //System.out.println("vetor lambiada");// Imprime o vetro resposta lambida
         for(int i = 0; i < x.length; i++){
-            System.out.println(x[p[i]]);
+            //System.out.println(x[p[i]]);
         }
+        return x;
    }
 }

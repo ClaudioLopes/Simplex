@@ -83,9 +83,9 @@ class Escalona {
                 }
             }
         }
-        System.out.println();
-        System.out.println("matriz escalonada LU: ");
-        imprime();
+        //System.out.println();
+        //System.out.println("matriz escalonada LU: ");
+        //imprime();
     }
     
     /*
@@ -132,7 +132,7 @@ class Escalona {
     /*
        Resolva Ux = y pelo metodo de substituiçao progreciva
     */
-    public void resolveUxy(){
+    public double[] resolveUxy(){
         for(int i = 0; i < mat.length; i++){
             for(int j = 0; j < mat.length; j++){
                 if(i > j){
@@ -148,7 +148,8 @@ class Escalona {
             }
             x[k] = x[k]/mat[k][k];
         }
-        imprimeVet();
+        //imprimeVet();
+        return x;
     }
     
     /*
