@@ -2,19 +2,6 @@
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
-
-Escalona lu = new Escalona(B,b);
-        lu.escalona();
-        lu.resolveLyb();
-        xb = lu.resolveUxy();
-        
-        EscalonaTransposta lut = new EscalonaTransposta(B,Cb);
-        lut.escalona();
-        lut.matrizTransposta();
-        lut.transporP();
-        lut.resolveUty();
-        lambida = lut.resolveLtx();
-
  */
 package escalonamentolu;
 
@@ -48,7 +35,7 @@ public class Simplex {
         this.c = c;
         B = new double[linha][linha];
         Cb = new double[linha];
-        r = new double[coluna];
+        r = new double[linha];
         lambida = new double[linha];
         Xb = new double[linha];
         Yq = new double[linha];
@@ -63,7 +50,7 @@ public class Simplex {
     }
     
     public void imprimeVetor(int[] vet){
-        System.out.println("Imprimindo Vetor");
+        System.out.println("Imprimindo Vetor de indice");
         for(int i = 0; i < vet.length; i++){
             System.out.print(vet[i] + " ");
         }
@@ -71,7 +58,6 @@ public class Simplex {
     }
     
     public void imprimeVetor(double[] vet){
-        System.out.println("Imprimindo Vetor");
         for(int i = 0; i < vet.length; i++){
             System.out.print(vet[i] + " ");
         }
@@ -79,14 +65,12 @@ public class Simplex {
     }
     
     public void imprimeMatriz(double[][] mat){
-        System.out.println("Imprimindo Matriz");
         for(int i = 0; i < mat.length; i++){
             for(int j = 0; j < mat[0].length; j++){
                 System.out.print(mat[i][j] + " ");
             }
             System.out.println();
         }
-        System.out.println();
     }
     
     public void constroiIndice(){
@@ -103,6 +87,7 @@ public class Simplex {
                 B[i][j] = A[i][indice[j]];
             }
         }
+        System.out.println("Matriz base:");
         imprimeMatriz(B);
     }
     
@@ -110,6 +95,7 @@ public class Simplex {
         for(int i = 0; i < Cb.length; i++){
             Cb[i] = c[indice[i]];
         }
+        System.out.println("Vetor de custos Cb:");
         imprimeVetor(Cb);
     }
     
@@ -128,26 +114,26 @@ public class Simplex {
     }
     
     public void calculaCustoReduzido(){
-        System.out.println("Impimindo a lenha");
+        int t = 0;
         for(int i = 0; i < r.length; i++){
-            for(int k = 0; k < lambida.length; k++){
-               r[i] = r[i] - lambida[k];
-            }
+            r[i] = r[i] - lambida[i];
         }
-        imprimeVetor(r);  
     }
     
     public void VerificaSolucaoOtima(){
         double[] aq = new double[linha];
         double menor = Double.MAX_VALUE;
         int ind = 0;
+        int k = 0;
         int cont = 0;
         for(int i = 0; i < r.length; i++){
             if(r[i] >= 0){
                 cont++;
+            }else{
+                k++;
             }
         }
-        if(cont == r.length){
+        if(cont == linha){
             System.out.println("Solucao Otima");
             int t = 0;
                 for(int i = 0; i < c.length; i++){
@@ -158,8 +144,6 @@ public class Simplex {
                         System.out.print(" 0.0 ");
                     }
                 }
-                System.out.println("Vetor custo Final");
-                imprimeVetor(r);
             exit(1);
         }else{
             for(int i = 0; i < r.length; i++){
@@ -186,8 +170,6 @@ public class Simplex {
             }
             if(cont1 == Yq.length){
                 System.out.println("Resposta nao limitda");
-                System.out.println("Vetor Yq final");
-                imprimeVetor(Yq);
                 exit(0);
             }
         }
@@ -208,9 +190,12 @@ public class Simplex {
     }
     
     public void constroiR(){
+        int k = 0;
         for(int i = 0; i < r.length; i++){
-                r[i] = c[i];
+            if(i != indice[k]){
+                r[i] = c[k];
+                k++;
             }
+        }
     }
-
 }
