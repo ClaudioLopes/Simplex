@@ -8,194 +8,205 @@ package escalonamentolu;
 import static java.lang.System.exit;
 
 public class Simplex {
-    
+    private int linha;
+    private int coluna;
+    private double p;
+    private int indS;
+    private int indE;
     private int[] indice;
-    private double[][] B;
-    private double[][] A;
     private double[] b;
     private double[] c;
     private double[] Cb;
-    private double[] r;
-    private double[] lambida;
     private double[] Xb;
+    private double[] lambida;
+    private double[] r;
+    private double[] Aq;
     private double[] Yq;
-    private int linha;
-    private int coluna;
-    private int p;
+    private double[][] a;
+    private double[][] B;
     
-    public Simplex(double[][] mat, double[] b, double[] c,int linha, int coluna){
+    public Simplex(double[][] A, double[] b, double[] c, int linha, int coluna){
         this.linha = linha;
         this.coluna = coluna;
-        indice = new int[linha];
-        A = new double[linha][coluna];
-        A = mat;
-        this.b = new double[linha];
+        this.p = Double.MAX_VALUE;
+        this.indS = 0;
+        this.indE = 0;
+        this.indice = new int[linha];
         this.b = b;
-        this.c = new double[coluna];
         this.c = c;
-        B = new double[linha][linha];
-        Cb = new double[linha];
-        r = new double[linha];
-        lambida = new double[linha];
-        Xb = new double[linha];
-        Yq = new double[linha];
+        this.Cb = new double[linha];
+        this.Xb = new double[linha];
+        this.lambida = new double[linha];
+        this.r = new double[coluna];
+        this.Aq = new double[linha];
+        this.Yq = new double[linha];
+        this.a = A;
+        this.B = new double[linha][linha];
         
         constroiIndice();
         constroiB();
         constroiCb();
-        constroiR();
-        DecomposicaoLU();
-        calculaCustoReduzido();
-        VerificaSolucaoOtima();
+        decomposiçãoLu();
+        calculaCustosReduzidos();
+        solucaoOtima();
     }
     
-    public void imprimeVetor(int[] vet){
-        System.out.println("Imprimindo Vetor de indice");
+    public void imprimeVet(int[] vet){
         for(int i = 0; i < vet.length; i++){
-            System.out.print(vet[i] + " ");
+            System.out.print(vet[i] + "  ");
         }
         System.out.println();
     }
     
-    public void imprimeVetor(double[] vet){
+    public void imprimeVet(double[] vet){
         for(int i = 0; i < vet.length; i++){
-            System.out.print(vet[i] + " ");
+            System.out.print(vet[i] + "  ");
         }
         System.out.println();
     }
     
     public void imprimeMatriz(double[][] mat){
         for(int i = 0; i < mat.length; i++){
-            for(int j = 0; j < mat[0].length; j++){
-                System.out.print(mat[i][j] + " ");
+            for(int j = 0; j < mat[i].length; j++){
+                System.out.print(mat[i][j] + "  ");
             }
             System.out.println();
         }
     }
-    
-    public void constroiIndice(){
+
+    private void constroiIndice() {
         int k = 0;
         for(int i = coluna-linha; i < coluna; i++){
             indice[k] = i;
-            k++;// esse K serve para iniciar o indice com 0
+            k++;
         }
+        System.out.println("Vetor de indice: ");
+        imprimeVet(indice);
     }
-    
-    public void constroiB(){
+
+    private void constroiB() {
         for(int i = 0; i < B.length; i++){
             for(int j = 0; j < B.length; j++){
-                B[i][j] = A[i][indice[j]];
+                B[i][j] = a[i][indice[j]];
             }
         }
         System.out.println("Matriz base:");
         imprimeMatriz(B);
     }
-    
-    public void constroiCb(){
+
+    private void constroiCb() {
         for(int i = 0; i < Cb.length; i++){
             Cb[i] = c[indice[i]];
         }
-        System.out.println("Vetor de custos Cb:");
-        imprimeVetor(Cb);
+        System.out.println("Vetor de custos da base: ");
+        imprimeVet(Cb);
     }
-    
-    public void DecomposicaoLU(){
-        Escalona lu = new Escalona(B,b);
+
+    private void decomposiçãoLu() {
+        Escalona lu = new Escalona(B, b);
         lu.escalona();
         lu.resolveLyb();
         Xb = lu.resolveUxy();
         
-        EscalonaTransposta lut = new EscalonaTransposta(B,Cb);
-        lut.escalona();
+        EscalonaTransposta lut = new EscalonaTransposta(B, Cb);
+        lu.escalona();
         lut.matrizTransposta();
         lut.transporP();
         lut.resolveUty();
         lambida = lut.resolveLtx();
     }
-    
-    public void calculaCustoReduzido(){
-        int t = 0;
-        for(int i = 0; i < r.length; i++){
-            r[i] = r[i] - lambida[i];
-        }
-    }
-    
-    public void VerificaSolucaoOtima(){
-        double[] aq = new double[linha];
-        double menor = Double.MAX_VALUE;
-        int ind = 0;
+
+    private void calculaCustosReduzidos() {
         int k = 0;
-        int cont = 0;
-        for(int i = 0; i < r.length; i++){
-            if(r[i] >= 0){
-                cont++;
-            }else{
+        for(int j = 0; j < c.length; j++){
+            if(k < lambida.length){
+                r[j] = c[j] - lambida[k];
                 k++;
             }
         }
-        if(cont == linha){
-            System.out.println("Solucao Otima");
-            int t = 0;
-                for(int i = 0; i < c.length; i++){
-                    if(i == indice[t]){
-                        System.out.print(Xb[t] + "  ");
-                        t++;
-                    }else{
-                        System.out.print(" 0.0 ");
-                    }
+        atualizaC();
+        System.out.println("Vetor de custos reduzido r:");
+        imprimeVet(r);
+    }
+
+    private void solucaoOtima() {
+        //verifica otimalidade da solução
+        int cont  = 0;
+        for(int j = 0; j < r.length; j++){
+            if(r[j] >= 0){
+                cont++;
+            }
+        }
+        if(cont == r.length){
+            int k = 0;
+            System.out.println("Soluca otima:");
+            for(int i = 0; i < c.length; i++){
+                if(i == indice[k]){
+                    System.out.print(Xb[k] + "  ");
+                    k++;
+                }else{
+                    System.out.print(" 0.0 ");
                 }
-            exit(1);
+            }
+            exit(0);
         }else{
-            for(int i = 0; i < r.length; i++){
-                if(r[i] < 0){
-                    ind = i;
-                    aq = constroiAq(ind);
-                    Escalona lu = new Escalona(B,aq);
+            for(int q = 0; q < r.length; q++){
+                if(r[q] < 0){
+                    indE = q;
+                    calculaAq();
+                    EscalonaTransposta lu = new EscalonaTransposta(B, Aq);
                     lu.escalona();
-                    lu.resolveLyb();
-                    Yq = lu.resolveUxy();
+                    lu.matrizTransposta();
+                    lu.transporP();
+                    lu.resolveUty();
+                    Yq = lu.resolveLtx();
+                    System.out.println("Vetor Yq:");
+                    imprimeVet(Yq);
                     break;
                 }
             }
+            //verifica se a soluçao é não limitada
             int cont1 = 0;
             for(int i = 0; i < Yq.length; i++){
-                if(Yq[i] <= 0){
-                    cont1++;
-                }else{
-                    if(Xb[i]/Yq[i] < menor){
-                        menor = Xb[i]/Yq[i];
-                        p = i;
+                if(Yq[i] > 0){
+                    if(Xb[i]/Yq[i] < p){
+                        p = Xb[i]/Yq[i];
+                        indS = i; 
                     }
+                }else{
+                    cont1++;
                 }
             }
             if(cont1 == Yq.length){
-                System.out.println("Resposta nao limitda");
-                exit(0);
+                System.out.println("Solucao nao limitada");
+            }else{
+                indice[indS] = indE;
+                chamaRecurcao();//se a solução for limitada repete o algoritmo
             }
         }
-        indice[p] = ind;
+    }
+
+    private void atualizaC() {
+        for(int i = 0; i < c.length; i++){
+            c[i] = r[i];
+        }
+        System.out.println("Vetros de custos c atualizadio:");
+        imprimeVet(c);
+    }
+
+    private void calculaAq() {
+        for(int i = 0; i < Aq.length; i++){
+            Aq[i] = a[i][indE];
+        }
+        System.out.println("Coluna aq que entrara na base: ");
+        imprimeVet(Aq);
+    }
+
+    private void chamaRecurcao() {
         constroiB();
         constroiCb();
-        DecomposicaoLU();
-        calculaCustoReduzido();
-        VerificaSolucaoOtima();
-    }
-    
-    public double[] constroiAq(int ind){
-        double[] aq = new double[linha];
-        for(int i = 0; i < A.length; i ++){
-            aq[i] = A[i][ind];
-        }
-        return aq;
-    }
-    
-    public void constroiR(){
-        int k = 0;
-        for(int i = 0; i < r.length; i++){
-            if(i != indice[k]){
-                r[i] = c[k];
-                k++;
-            }
-        }
+        decomposiçãoLu();
+        calculaCustosReduzidos();
+        solucaoOtima();
     }
 }
