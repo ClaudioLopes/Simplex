@@ -8,6 +8,7 @@ package escalonamentolu;
 import static java.lang.System.exit;
 
 public class Simplex {
+    private int quant = 0;
     private int linha;
     private int coluna;
     private double p;
@@ -47,6 +48,7 @@ public class Simplex {
         constroiB();
         constroiCb();
         decomposiçãoLu();
+        constroiR();
         calculaCustosReduzidos();
         solucaoOtima();
     }
@@ -117,14 +119,16 @@ public class Simplex {
     }
 
     private void calculaCustosReduzidos() {
+        calculaAq();
         int k = 0;
         for(int j = 0; j < c.length; j++){
-            if(k < lambida.length){
-                r[j] = c[j] - lambida[k];
-                k++;
-            }
+            //if(j != indice[k]){
+                r[j] = c[j] - lambida[k]*Aq[k];
+                System.out.println("r[j]: " + r[j] + " c[j] " + c[j] + " lambida " + lambida[k]*Aq[k] + " k: " + k);
+            //}else{
+            //   k++;
+            //}
         }
-        atualizaC();
         System.out.println("Vetor de custos reduzido r:");
         imprimeVet(r);
     }
@@ -153,7 +157,7 @@ public class Simplex {
             for(int q = 0; q < r.length; q++){
                 if(r[q] < 0){
                     indE = q;
-                    calculaAq();
+                    //calculaAq();
                     EscalonaTransposta lu = new EscalonaTransposta(B, Aq);
                     lu.escalona();
                     lu.matrizTransposta();
@@ -171,7 +175,7 @@ public class Simplex {
                 if(Yq[i] > 0){
                     if(Xb[i]/Yq[i] < p){
                         p = Xb[i]/Yq[i];
-                        indS = i; 
+                        indS = i;
                     }
                 }else{
                     cont1++;
@@ -186,14 +190,6 @@ public class Simplex {
         }
     }
 
-    private void atualizaC() {
-        for(int i = 0; i < c.length; i++){
-            c[i] = r[i];
-        }
-        System.out.println("Vetros de custos c atualizadio:");
-        imprimeVet(c);
-    }
-
     private void calculaAq() {
         for(int i = 0; i < Aq.length; i++){
             Aq[i] = a[i][indE];
@@ -202,11 +198,18 @@ public class Simplex {
         imprimeVet(Aq);
     }
 
-    private void chamaRecurcao() {
+    public void chamaRecurcao() {
+        imprimeVet(indice);
         constroiB();
         constroiCb();
         decomposiçãoLu();
         calculaCustosReduzidos();
         solucaoOtima();
+    }
+    
+    public void constroiR(){
+        for(int i = 0; i < r.length; i++){
+            r[i] = 0;
+        }
     }
 }
